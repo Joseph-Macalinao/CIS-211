@@ -32,5 +32,10 @@ class Planet:
         density = self.__mass / self.get_volume()
         return density
 
+    def set_name(self, new_name):
+        self.__name = new_name
+
+
+
 
 
