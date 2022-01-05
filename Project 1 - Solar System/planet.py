@@ -50,20 +50,21 @@ class Planet:
         return:
         '''
         volume = 4/3 * math.pi * self.radius ** 3
-        return volume
+        return round(volume, 2)
 
     def get_surface_area(self):
         sa = 4 * math.pi * self.radius ** 2
-        return sa
+        return round(sa, 2)
 
     def get_density(self):
         density = self.mass / self.get_volume()
-        return density
+        return round(density, 2)
 
     def set_name(self, new_name):
-        self.__name = new_name
+        self.name = new_name
 
 
 
 
-
+p1 = Planet('x25', 10.0, 100.0, 50.0)
+print(p1.get_volume())
