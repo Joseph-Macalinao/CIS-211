@@ -2,7 +2,6 @@ class Sentence:
     def __init__(self, string):
         self.string = string
 
-
     def get_sentence(self):
         return self.string
 
@@ -13,6 +12,4 @@ class Sentence:
         return len(self.string)
 
     def get_num_words(self):
-        return len(self.string.split())
-
-
+        return len(self.get_words())
