@@ -1,5 +1,4 @@
-from planet import Planet
-from solarsystem import SolarSystem
+
 
 class Sun:
     def __init__(self, name: str, radius: float, mass: float, temp: float):

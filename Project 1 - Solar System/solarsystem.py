@@ -1,5 +1,4 @@
-from sun import Sun
-from planet import Planet
+
 
 
 class SolarSystem:
