@@ -1,4 +1,6 @@
 import math
+from sun import Sun
+from solarsystem import SolarSystem
 
 
 class Planet:

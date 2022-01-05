@@ -1,3 +1,6 @@
+from planet import Planet
+from solarsystem import SolarSystem
+
 class Sun:
     def __init__(self, name: str, radius: float, mass: float, temp: float):
         self.__name = name
@@ -16,3 +19,5 @@ class Sun:
 
     def __str__(self):
         return self.__name
+
+

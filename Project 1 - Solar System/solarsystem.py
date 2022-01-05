@@ -1,3 +1,7 @@
+from sun import Sun
+from planet import Planet
+
+
 class SolarSystem:
     def __init__(self, sun):
         self.__sun = sun
