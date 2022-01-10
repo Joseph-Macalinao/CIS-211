@@ -1,9 +1,9 @@
 import math
-
+import sun
 
 
 class Planet:
-    def __init__(self, name: str, rad: float, mass: float, dist: float):
+    def __init__(self, name: str, radius: float, mass: float, distance: float):
         '''
         initializes a Planet object
         param name: name of the object
@@ -12,9 +12,9 @@ class Planet:
         param dist: distance of the object from the Sun
         '''
         self.name = name
-        self.radius = rad
+        self.radius = radius
         self.mass = mass
-        self.distance = dist
+        self.distance = distance
 
     def get_name(self):
         '''
@@ -53,18 +53,31 @@ class Planet:
         return round(volume, 2)
 
     def get_surface_area(self):
+        '''
+        gives the surface area of the planet
+        :return: sa of the planet
+        '''
         sa = 4 * math.pi * self.radius ** 2
         return round(sa, 2)
 
     def get_density(self):
+        '''
+        gives the density of the given planet object
+        :return: density of the planet
+        '''
         density = self.mass / self.get_volume()
         return round(density, 2)
 
     def set_name(self, new_name):
+        '''
+        changes the name of a given planet object
+        :param new_name: what the name will be changed to
+        :return: new name of the object
+        '''
         self.name = new_name
 
+    def __str__(self):
+        return self.name
 
 
 
-p1 = Planet('x25', 10.0, 100.0, 50.0)
-print(p1.get_volume())

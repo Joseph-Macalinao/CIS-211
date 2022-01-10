@@ -33,6 +33,33 @@ class T4_TestGetDistance(unittest.TestCase):
         p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
         self.assertEqual(p1.distance, 50.0)
 
+class T5_TestGetVolume(unittest.TestCase):
+    def test_get_volume(self):
+        p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
+        self.assertEqual(p1.get_volume(), 4188.79)
+
+class T6_TestGetSurfaceArea(unittest.TestCase):
+    def test_get_surface_area(self):
+        p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
+        self.assertEqual(p1.get_surface_area(), 1256.64)
+
+class T7_TestGetDensity(unittest.TestCase):
+    def test_get_density(self):
+        p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
+        self.assertEqual(p1.get_density(), 0.02)
+
+class T8_TestSetName(unittest.TestCase):
+    def test_set_name(self):
+        p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
+        p1.set_name('joe')
+        self.assertEqual(p1.name, 'joe')
+
+class T9_TestStringName(unittest.TestCase):
+    def test_string_name(self):
+        p1 = planet.Planet('x25', 10.0, 100.0, 50.0)
+        self.assertEqual(p1.__str__(), 'x25')
+
+
 
 
 
