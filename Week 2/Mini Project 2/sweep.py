@@ -7,7 +7,7 @@ def all_same(lst: list) -> bool:
     if lst is None:
         return True
     for i in lst:
-        if lst[i] == lst[0]:
+        if i == lst[0]:
             continue
         else:
             return False
@@ -15,6 +15,11 @@ def all_same(lst: list) -> bool:
 
 
 def dedup(lst: list) -> list:
+    '''
+    This function will return a list of which all immediately following duplicates will be removed
+    :param lst: list being checked
+    :return: list of removed duplicates
+    '''
     if lst is None:
         return []
     ded = []
@@ -29,15 +34,22 @@ def dedup(lst: list) -> list:
 
 
 def max_run(lst: list) -> int:
+    '''
+    This will find the "longest run" (repetition of same number in a row) in a list
+    :param lst: list being looped through
+    :return: Length of the longest list
+    '''
     if lst is None:
         return 0
     max_run = 0
-    curr = 0
-    for i in lst:
-        if i == lst[i-1:][0]:
+    curr = 1
+    for i in range(len(lst)-1):
+        if lst[i] == lst[i+1]:
             curr += 1
-    if curr > max_run:
-        max_run = curr
+        else:
+            if curr > max_run:
+                max_run = curr
+            curr = 1
     return max_run
 
 
