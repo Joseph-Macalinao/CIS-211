@@ -38,10 +38,13 @@ class View(builtins.object):
         self.objects.append(object)
 
     def game_over(self, won):
-        pass
+        if won == True
+            print("You Won!")
+        elif won == False:
+            print("You lost...")
 
     def get_display_height(self):
-        pass
+        return curses.
 
     def get_display_width(self):
         pass

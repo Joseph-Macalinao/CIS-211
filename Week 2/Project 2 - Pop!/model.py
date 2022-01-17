@@ -12,7 +12,7 @@ class Model:
         return self.projectile
 
     def place_balloons(self):
-        for i in range(self.return_projectile()):
+        for i in range(self.targets):
             self.balloons.append((random.randint(0, 10), random.randint(0, 10)))
 
 
@@ -20,6 +20,10 @@ class Model:
         print(self.balloons)
 
 
+
+m1 = Model(4,5)
+m1.place_balloons()
+m1.show_balloons()
 
 
 
