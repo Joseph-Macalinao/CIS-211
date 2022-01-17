@@ -13,6 +13,6 @@ class Controller:
 
 if __name__ == '__main__':
     calc = Controller()
-    calc.model.initialize_positions()
-
+    places = calc.model.initialize_positions()
+    calc.view.mark(places)
     calc.main()

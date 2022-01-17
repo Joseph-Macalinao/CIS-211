@@ -13,8 +13,14 @@ class View(tk.Tk):
         self.title(string='Pop')
 
 
-    def mark(self):
-        lab = ttk.Label(text = f'')
+    def mark(self, objects=[]):
+        place = ''
+        for i in objects:
+            if i == 0:
+                place +=  f'Launcher at: {str(objects[0])}\n'
+            else:
+                place += f'Ballon at: {str(objects[i])}\n'
+        lab = tk.Label(text=place)
         lab.pack()
 
 
