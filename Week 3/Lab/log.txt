@@ -1,0 +1,2 @@
+ERROR:MyFirstLog:Something is very wrong!
+INFO:MyFirstLog:This is just FYI
