@@ -2,7 +2,7 @@ import enum
 import random
 import observer
 import config
-
+import math
 from typing import List
 
 import logging
@@ -35,7 +35,7 @@ class Health(enum.Enum):
         return self.name.lower()
 
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 class Individual(observer.Observable):
     """A class to store all the data associated with a typical individual. The individual
@@ -58,7 +58,6 @@ class Individual(observer.Observable):
         # Parameters
         self.config = config.DISEASE
      
-        
     def __str__(self) -> str:
         """Returns the name of the individual, in this case the health state."""
         return self._state.name
@@ -85,7 +84,6 @@ class Individual(observer.Observable):
         """Returns the next health state of the individual"""
         return self._next_state
         
-        
     def step(self, region: "Population"):
         """Next state"""
         # Basic state transitions are in common between all individuals
@@ -103,7 +101,6 @@ class Individual(observer.Observable):
         # be implemented in subclasses of Individual
         self.social_interactions(region)
         
-
     def tick(self):
         """Time passes"""
         self._time_in_state += 1
@@ -119,33 +116,48 @@ class Individual(observer.Observable):
     
     # TODO: Methods that you must implement are below, feel free to add more
     def social_interactions(self, region: "Population"):
-        """Implements the updates dictated by the social interactions of 
+        """Implements the updates dictated by the social interactions of
         the individual, using more of the self.config parameters.
         
         Args:
             region: the population of individuals to which this individual belongs
         """
         # TODO: This is where you should start implementing Parts 1 and 2 of the project
-        greet = Individual.hello(self, Individual((self._row, self._col)))
-        if greet:
-            pass
+        if config.SOCIAL['N_Visits'] >= 1:
+            for i in range(math.floor(config.SOCIAL['N_Visits'])):
+        # for i in Population.get_neighbors(region, (self._row, self._col)):
+                neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col), config.SOCIAL['Visit_Dist'])))
+                greet = self.hello(neighbor)
+                if greet:
+                    self.meet(neighbor)
+        elif config.SOCIAL['N_Visits'] < 1:
+            y_n = random.random()
+            if y_n < config.SOCIAL['N_Visits']:
+                neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col))))
+                greet = self.hello(neighbor)
+                if greet is True:
+                    self.meet(neighbor)
+
     def hello(self, visitor: "Individual") -> bool:
         """True means 'welcome' and False means 'go away'"""
         y_n = random.random()
-        if y_n > config.SOCIAL['P_Greet']:
-            return False
-        else:
+        if y_n <= config.SOCIAL['P_Greet']:
             return True
+        else:
+            return False
         
     def meet(self, other: "Individual"):
         """Two individuals meet.  Either may infect
         the other.
         """
-        if self._state == Health.INFECTED or other._state == Health.INFECTED:
-            self._state == Health.INFECTED
-            other._state == Health.INFECTED
+        transmit = random.random()
+        if self.get_health() == Health.INFECTED or other.get_health() == Health.INFECTED:
+            if transmit <= config.DISEASE['P_Transmit']:
+                self.set_next_state(Health.INFECTED)
+                other.set_next_state(Health.INFECTED)
 
-#----------------------------------------------------------------
+
+# ----------------------------------------------------------------
 
 class Population(observer.Observable):
     """A model for the population based on a grid of cells, where each cell can hold
@@ -158,9 +170,9 @@ class Population(observer.Observable):
         randomly located npeople individuals, who are all intialized as vulnerable.
         
         Args:
-            nrows: The number of rows in the grid.
-            ncols: The number of columns in the grid.
-            npeople: The initial number of people in the population.
+            num_rows: The number of rows in the grid.
+            num_cols: The number of columns in the grid.
+            num_people: The initial number of people in the population.
         """
         super().__init__()
         
@@ -171,7 +183,7 @@ class Population(observer.Observable):
         self._grid = [[None for i in range(num_rows)] for j in range(num_cols)]
         
         # TODO: add npeople Individuals to the population in random cells
-        cells = [] # list of cells represented by (row, col) index tuples
+        cells = []  # list of cells represented by (row, col) index tuples
         while len(cells) < min(num_people, num_rows * num_cols):
             i = random.randint(0, num_rows - 1)
             j = random.randint(0, num_cols - 1)
@@ -179,13 +191,13 @@ class Population(observer.Observable):
                 cells.append((i,j))
         
         for row, col in cells:
-            person = Individual(location = (row, col))
+            person = Individual(location=(row, col))
             self._people.append(person)
             self._grid[row][col] = person
         
     def __str__(self) -> str:
         """Returns a string representation of the population"""
-        res =  ''
+        res = ''
         for i in range(self._nrows):
             for j in range(self._ncols):
                 if self._grid[i][j] is None:
@@ -209,7 +221,7 @@ class Population(observer.Observable):
         for row in range(self._nrows):
             for col in range(self._ncols):
                 if self._grid[row][col] is not None:
-                    self._grid[row][col].step(region = self)   
+                    self._grid[row][col].step(region=self)
 
         self.notify_all("Grid updated")    
     
@@ -224,8 +236,6 @@ class Population(observer.Observable):
                     
         self.notify_all("Grid updated")
 
-
-            
     def seed(self, num_sick: int = config.POPULATION['N_Infected']):
         """Select a random subset of the individuals and make them sick.
         We only do this once, in the beginning of the simulation.
@@ -252,12 +262,30 @@ class Population(observer.Observable):
         # TODO: Implement for Part 1 with the default max_dist = 1, then extend for Part 2
         # to handle any distance within the grid. Do NOT return None values
         neighbors = []
-        neighbors.extend([(coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1]), (coord[0] - 1, coord[1] + 1),
-                         (coord[0], coord[1] - 1),                             (coord[0], coord[1] + 1),
-                         (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1]), (coord[0] + 1, coord[1] + 1)])
+        result = []
+        if max_dist == 1:
+            neighbors.extend([(coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1]), (coord[0] - 1, coord[1] + 1),
+                          (coord[0], coord[1] - 1),                             (coord[0], coord[1] + 1),
+                          (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1]), (coord[0] + 1, coord[1] + 1)])
 
-        return neighbors
-
-
-
-
+        elif max_dist == 2:
+            neighbors.extend([(coord[0] - 2, coord[1] - 2), (coord[0] - 2, coord[1] - 1), (coord[0] - 2, coord[1] - 0),
+                              (coord[0] - 2, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+                              (coord[0] - 1, coord[1] - 2), (coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1] - 0),
+                              (coord[0] - 1, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+                              (coord[0] - 0, coord[1] - 2), (coord[0] - 0, coord[1] - 1),
+                              (coord[0] - 0, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+                              (coord[0] + 1, coord[1] - 2), (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1] - 0),
+                              (coord[0] + 1, coord[1] + 1), (coord[0] + 1, coord[1] + 2),
+                              (coord[0] + 2, coord[1] - 2), (coord[0] + 2, coord[1] - 1), (coord[0] + 2, coord[1] - 0),
+                              (coord[0] + 2, coord[1] + 2), (coord[0] + 2, coord[1] + 2)])
+        for i in neighbors:
+            if i[0] < 0 or i[0] > self._ncols - 1:
+                pass
+            elif i[1] < 0 or i[1] > self._nrows - 1:
+                pass
+            else:
+                result.append(i)
+        # for i in result:
+        #     individual.append(Population.get_individual(self, i[1], i[0]))
+        return result
