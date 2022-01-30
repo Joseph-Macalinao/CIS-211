@@ -71,6 +71,9 @@ class Individual(observer.Observable):
         """
         if health in list(Health):
             self._state = health
+
+    def get_individual(self, x, y):
+        return
             
     def get_health(self) -> Health:
         """Returns the health state of the individual."""
@@ -123,20 +126,24 @@ class Individual(observer.Observable):
             region: the population of individuals to which this individual belongs
         """
         # TODO: This is where you should start implementing Parts 1 and 2 of the project
+        neighbors = region.get_neighbors((self._row, self._col), max_dist=config.SOCIAL['Visit_Dist'])
         if config.SOCIAL['N_Visits'] >= 1:
             for i in range(math.floor(config.SOCIAL['N_Visits'])):
-        # for i in Population.get_neighbors(region, (self._row, self._col)):
-                neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col), config.SOCIAL['Visit_Dist'])))
-                greet = self.hello(neighbor)
+                neighbor = random.choice(neighbors)
+                #neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col), config.SOCIAL['Visit_Dist'])))
+                person = region.get_individual(neighbor[0], neighbor[1])
+                greet = self.hello(person)
                 if greet:
-                    self.meet(neighbor)
+                    self.meet(person)
         elif config.SOCIAL['N_Visits'] < 1:
+            neighbor = random.choice(neighbors)
+            person = region.get_individual(neighbor[0], neighbor[1])
             y_n = random.random()
             if y_n < config.SOCIAL['N_Visits']:
-                neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col))))
-                greet = self.hello(neighbor)
+                # neighbor = Individual(random.choice(region.get_neighbors((self._row, self._col))))
+                greet = self.hello(person)
                 if greet is True:
-                    self.meet(neighbor)
+                    self.meet(person)
 
     def hello(self, visitor: "Individual") -> bool:
         """True means 'welcome' and False means 'go away'"""
@@ -145,13 +152,15 @@ class Individual(observer.Observable):
             return True
         else:
             return False
-        
+
     def meet(self, other: "Individual"):
         """Two individuals meet.  Either may infect
         the other.
         """
         transmit = random.random()
         if self.get_health() == Health.INFECTED or other.get_health() == Health.INFECTED:
+            if self.get_health() == Health.RECOVERED or other.get_health() == Health.RECOVERED:
+                pass
             if transmit <= config.DISEASE['P_Transmit']:
                 self.set_next_state(Health.INFECTED)
                 other.set_next_state(Health.INFECTED)
@@ -263,29 +272,35 @@ class Population(observer.Observable):
         # to handle any distance within the grid. Do NOT return None values
         neighbors = []
         result = []
-        if max_dist == 1:
-            neighbors.extend([(coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1]), (coord[0] - 1, coord[1] + 1),
-                          (coord[0], coord[1] - 1),                             (coord[0], coord[1] + 1),
-                          (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1]), (coord[0] + 1, coord[1] + 1)])
+        # if max_dist == 1:
+        #     neighbors.extend([(coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1]), (coord[0] - 1, coord[1] + 1),
+        #                   (coord[0], coord[1] - 1),                             (coord[0], coord[1] + 1),
+        #                   (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1]), (coord[0] + 1, coord[1] + 1)])
+        # elif max_dist == 2:
+        #     neighbors.extend([(coord[0] - 2, coord[1] - 2), (coord[0] - 2, coord[1] - 1), (coord[0] - 2, coord[1] - 0),
+        #                       (coord[0] - 2, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+        #                       (coord[0] - 1, coord[1] - 2), (coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1] - 0),
+        #                       (coord[0] - 1, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+        #                       (coord[0] - 0, coord[1] - 2), (coord[0] - 0, coord[1] - 1),
+        #                       (coord[0] - 0, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
+        #                       (coord[0] + 1, coord[1] - 2), (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1] - 0),
+        #                       (coord[0] + 1, coord[1] + 1), (coord[0] + 1, coord[1] + 2),
+        #                       (coord[0] + 2, coord[1] - 2), (coord[0] + 2, coord[1] - 1), (coord[0] + 2, coord[1] - 0),
+        #                       (coord[0] + 2, coord[1] + 2), (coord[0] + 2, coord[1] + 2)])
 
-        elif max_dist == 2:
-            neighbors.extend([(coord[0] - 2, coord[1] - 2), (coord[0] - 2, coord[1] - 1), (coord[0] - 2, coord[1] - 0),
-                              (coord[0] - 2, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
-                              (coord[0] - 1, coord[1] - 2), (coord[0] - 1, coord[1] - 1), (coord[0] - 1, coord[1] - 0),
-                              (coord[0] - 1, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
-                              (coord[0] - 0, coord[1] - 2), (coord[0] - 0, coord[1] - 1),
-                              (coord[0] - 0, coord[1] + 1), (coord[0] - 2, coord[1] + 2),
-                              (coord[0] + 1, coord[1] - 2), (coord[0] + 1, coord[1] - 1), (coord[0] + 1, coord[1] - 0),
-                              (coord[0] + 1, coord[1] + 1), (coord[0] + 1, coord[1] + 2),
-                              (coord[0] + 2, coord[1] - 2), (coord[0] + 2, coord[1] - 1), (coord[0] + 2, coord[1] - 0),
-                              (coord[0] + 2, coord[1] + 2), (coord[0] + 2, coord[1] + 2)])
-        for i in neighbors:
-            if i[0] < 0 or i[0] > self._ncols - 1:
-                pass
-            elif i[1] < 0 or i[1] > self._nrows - 1:
-                pass
-            else:
-                result.append(i)
-        # for i in result:
-        #     individual.append(Population.get_individual(self, i[1], i[0]))
+        # for i in self._grid:
+        #     if math.sqrt(((i.coord[0] - coord[0]) ** 2) + (i.coord[1] - coord[1] ** 2)) < max_dist:
+        #         neighbors.append(i)
+        for i in range(self._nrows):
+            for e in range(self._ncols):
+                if math.sqrt((i - coord[0]) ** 2 + (e - coord[1]) ** 2) <= max_dist:
+                    neighbors.append((i, e))
+
+
+                for z in neighbors:
+                    if z[0] < 0 or z[0] > self._ncols - 1 or z[1] < 0 or z[1] > self._nrows - 1:
+                        pass
+                    else:
+                        result.append(z)
         return result
+
