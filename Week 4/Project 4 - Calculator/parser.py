@@ -10,6 +10,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('parser.py')
 
+
 class Parser:
     """A small parser for reverse polish notation (RPN) calculator
     
@@ -36,7 +37,6 @@ class Parser:
     def __init__(self):
         """Initialize the parser"""
         self.parse_tree = None
-                
                 
     def parse(self, code: str) -> expression.Expression:
         """Parse the given postfix expression code string.
@@ -68,22 +68,39 @@ class Parser:
             # operands from the stack. 
             #   - Then, create a new node with the operator and the two 
             # operands as children, and push (append) the new node to the stack.
-            if tokens[index] in parser.OPS.keys():
-                if tokens[index] is '+':
-                    log.debug(f"Adding Operator: {tokens[index]}")
-                elif tokens[index] is '-':
-                    log.debug(f"Subtraction Operator: {tokens[index]}")
-                elif tokens[index] is '*':
-                    log.debug(f"Multiplication Operator: {tokens[index]}")
-                elif tokens[index] is '/':
-                    log.debug(f"Division Operator: {tokens[index]}")
-            elif type(tokens[index] is int):
-                log.debug(f"Integer: {tokens[index]}")
 
+            if tokens[index] in Parser.OPS.keys():
+                if tokens[index] == '+':
+                    log.debug(f"Adding Operator: {tokens[index]}")
+                    right = stack.pop()
+                    left = stack.pop()
+                    expr = expression.Add(left, right)
+                    stack.append(expr)
+                elif tokens[index] == '-':
+                    log.debug(f"Subtraction Operator: {tokens[index]}")
+                    right = stack.pop()
+                    left = stack.pop()
+                    expr = expression.Sub(left, right)
+                    stack.append(expr)
+                elif tokens[index] == '*':
+                    log.debug(f"Multiplication Operator: {tokens[index]}")
+                    right = stack.pop()
+                    left = stack.pop()
+                    expr = expression.Mul(left, right)
+                    stack.append(expr)
+                elif tokens[index] == '/':
+                    log.debug(f"Division Operator: {tokens[index]}")
+                    right = stack.pop()
+                    left = stack.pop()
+                    expr = expression.Div(left, right)
+                    stack.append(expr)
+            elif type(tokens[index] == int):
+                int_value = expression.IntValue(tokens[index])
+                log.debug(f"Integer: {tokens[index]}")
+                stack.append(int_value)
 
             index += 1
 
-                
         # The tree root should be the only thing in the stack
         if len(stack) != 1:
             raise self.ParseError(f"Cannot process expression: {code}")
@@ -91,6 +108,7 @@ class Parser:
         log.debug("Parsed: " + str(stack[0]))
         self.parse_tree = stack[0]
         return stack[0]
+
 
 if __name__ == '__main__':
     # Local tests
