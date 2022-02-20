@@ -1,6 +1,9 @@
 class BinaryNumber:
     def __init__(self, bits):
-        self.bits = bits
+        if type(bits) == list:
+            self.bits = bits
+        elif type(bits) == int:
+            self.bits = list(bits)
 
     def __or__(self, other):
         bit_str = []
@@ -20,13 +23,23 @@ class BinaryNumber:
                 bit_str.append(0)
         return BinaryNumber(bit_str)
 
-    def left_shift(self):
-        self.bits = self.number[1:] + [0]
+    def __str__(self):
+        return f"{self.bits}"
+
+    def left_shift(self, amount):
+        self.bits = self.bits[amount:] + [0] * amount
 
 
-    def right_shift(self):
-        self.bits = [0] + self.bits[:-1]
+    def right_shift(self, amount):
+        self.bits = [0] * amount + self.bits[:-amount]
 
     def extract(self, start: int, end: int):
-        return BinaryNumber(self.bits[start, end])
+        pass
 
+
+
+        # return BinaryNumber(self.bits[start, end])
+
+b = BinaryNumber([1, 1, 1, 1, 1])
+b.right_shift(2)
+print(b)

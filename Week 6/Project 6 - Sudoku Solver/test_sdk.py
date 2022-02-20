@@ -5,6 +5,7 @@ from sdk_board import *
 from sdk_config import *
 import sdk_reader
 
+
 class TestTileBasic(unittest.TestCase):
     def test_init_unknown(self):
         tile = Tile(3, 2, UNKNOWN)
@@ -87,6 +88,78 @@ class TestBoardGroups(unittest.TestCase):
             self.assertNotIn(hash_sum, groups_by_hash,
                              msg=f"Oh no, group {group} is a duplicate!")
             groups_by_hash[hash_sum] = group
+
+
+class TestConsistent(unittest.TestCase):
+    """Tests of the 'is_consistent' method"""
+
+    def test_good_complete_board(self):
+        """This one is from Wikipedia"""
+        board = Board()
+        board.set_tiles(["534678912", "672195348", "198342567",
+                        "859761423", "426853791", "713924856",
+                         "961537284", "287419635", "345286179"])
+        self.assertTrue(board.is_consistent())
+
+    def test_good_incomplete(self):
+        """From Sadman Sudoku"""
+        board = Board()
+        board.set_tiles(["...26.7.1", "68..7..9.", "19...45..",
+                        "82.1...4.", "..46.29..", ".5...3.28",
+                        "..93...74", ".4..5..36", "7.3.18..."])
+        self.assertTrue(board.is_consistent())
+
+    def test_bad_column(self):
+        board = Board()
+        board.set_tiles(["1........", ".........", ".........",
+                         ".........", ".........", ".........",
+                         "1........", ".........", "........."])
+        self.assertFalse(board.is_consistent())
+
+    def test_bad_row(self):
+        board = Board()
+        board.set_tiles([".........", ".........", ".........",
+                         ".........", ".2.....2.", ".........",
+                         ".........", ".........", "........."])
+        self.assertFalse(board.is_consistent())
+
+    def test_bad_block(self):
+        board = Board()
+        board.set_tiles([".........", "......1..", "........1",
+                         ".........", ".........", ".........",
+                         ".........", ".........", "........."])
+        self.assertFalse(board.is_consistent())
+
+class TestNakedSingle(unittest.TestCase):
+    """Simple test of Naked Single using row, column, and block
+    constraints.  From Sadman Sudoku,
+    http://www.sadmansoftware.com/sudoku/nakedsingle.php
+    """
+    def test_sadman_example(self):
+        board = Board()
+        board.set_tiles([".........", "......1..", "......7..",
+                         "......29.", "........4", ".83......",
+                         "......5..", ".........", "........."])
+        progress = board.naked_single()
+        self.assertTrue(progress, "Should resolve one tile")
+        progress = board.naked_single()
+        self.assertTrue(progress, "A few candidates should be eliminated from other tiles")
+        progress = board.naked_single()
+        self.assertFalse(progress, "No more progress on this simple example")
+        self.assertEqual(str(board),
+            ".........\n......1..\n......7..\n......29.\n........4\n.83...6..\n......5..\n.........\n.........")
+
+    def test_naked_single_one(self):
+        """This puzzle can be solved with multiple rounds of naked single."""
+        board = Board()
+        board.set_tiles(["...26.7.1", "68..7..9.", "19...45..",
+                         "82.1...4.", "..46.29..", ".5...3.28",
+                         "..93...74", ".4..5..36", "7.3.18..."])
+        board.solve()
+        self.assertEqual(str(board),
+                         "\n".join(["435269781", "682571493", "197834562",
+                                    "826195347", "374682915", "951743628",
+                                    "519326874", "248957136", "763418259"]))
 
 if __name__ == "__main__":
     unittest.main()
